@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Resume Builder Pro</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
+
+body{
+background:#eef2f7;
+color:#222;
+transition:.3s;
+}
+
+header{
+background:linear-gradient(135deg,#182848,#4b6cb7);
+color:white;
+padding:30px 20px;
+text-align:center;
+}
+
+header h1{font-size:32px;margin-bottom:8px}
+header p{opacity:.9}
+
+.topbar{
+max-width:1200px;
+margin:20px auto 0;
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:10px;
+}
+
+.progress-box{
+background:white;
+padding:15px 20px;
+border-radius:12px;
+box-shadow:0 4px 15px rgba(0,0,0,.08);
+}
+
+.progress-text{
+font-weight:bold;
+color:#182848;
+}
+
+.progress{
+width:220px;
+height:10px;
+background:#ddd;
+border-radius:20px;
+margin-top:8px;
+overflow:hidden;
+}
+
+.progress-fill{
+height:100%;
+width:0%;
+background:#198754;
+transition:.4s;
+}
+
+.container{
+width:95%;
+max-width:1200px;
+margin:20px auto 40px;
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:25px;
+}
+
+.card{
+background:white;
+padding:25px;
+border-radius:16px;
+box-shadow:0 5px 20px rgba(0,0,0,.08);
+}
+
+.card h2{
+color:#182848;
+margin-bottom:18px;
+}
+
+label{
+display:block;
+font-weight:bold;
+margin:13px 0 6px;
+}
+
+input,textarea{
+width:100%;
+padding:11px;
+border:1px solid #ccc;
+border-radius:8px;
+font-size:14px;
+}
+
+textarea{
+min-height:75px;
+resize:vertical;
+}
+
+button{
+border:0;
+padding:11px 16px;
+border-radius:8px;
+cursor:pointer;
+font-weight:bold;
+margin-top:15px;
+}
+
+.generate{
+width:100%;
+background:#182848;
+color:white;
+}
+
+.download{
+width:100%;
+background:#198754;
+color:white;
+}
+
+.templates{
+display:flex;
+gap:8px;
+flex-wrap:wrap;
+margin-bottom:15px;
+}
+
+.templates button{
+margin:0;
+background:#e9edf5;
+color:#182848;
+}
+
+.templates button.active{
+background:#182848;
+color:white;
+}
+
+.resume{
+background:white;
+min-height:800px;
+padding:38px;
+border-radius:6px;
+color:#222;
+}
+
+.resume-header{
+border-bottom:2px solid #182848;
+padding-bottom:15px;
+margin-bottom:20px;
+}
+
+.resume-header h1{
+font-size:32px;
+color:#182848;
+}
+
+.resume-header p{
+margin-top:7px;
+color:#555;
+}
+
+.resume-section{
+margin-top:22px;
+}
+
+.resume-section h3{
+color:#182848;
+border-bottom:1px solid #ddd;
+padding-bottom:5px;
+margin-bottom:10px;
+}
+
+.resume-section p{
+line-height:1.6;
+white-space:pre-line;
+}
+
+.template-modern .resume-header{
+text-align:center;
+}
+
+.template-modern .resume-section h3{
+text-transform:uppercase;
+letter-spacing:1px;
+}
+
+.template-minimal{
+font-family:Georgia,serif;
+}
+
+.template-minimal .resume-header h1,
+.template-minimal .resume-section h3{
+color:#333;
+}
+
+.template-minimal .resume-header{
+border-bottom:1px solid #777;
+}
+
+.dark{
+background:#121826;
+color:white;
+}
+
+.dark .card,
+.dark .progress-box,
+.dark .resume{
+background:#1c2535;
+color:white;
+}
+
+.dark .card h2,
+.dark .progress-text{
+color:white;
+}
+
+.dark input,
+.dark textarea{
+background:#263247;
+color:white;
+border-color:#46536a;
+}
+
+.dark .resume-header h1,
+.dark .resume-section h3{
+color:#8fb3ff;
+}
+
+.dark .resume-header p{
+color:#ccc;
+}
+
+.dark .templates button{
+background:#344158;
+color:white;
+}
+
+.toggle{
+background:#f1f1f1;
+color:#222;
+margin:0;
+}
+
+@media(max-width:800px){
+.container{
+grid-template-columns:1fr;
+}
+
+.topbar{
+width:95%;
+flex-direction:column;
+align-items:stretch;
+}
+
+.progress{
+width:100%;
+}
+}
+
+@media print{
+body{background:white}
+
+header,
+.topbar,
+.form-card{
+display:none!important;
+}
+
+.container{
+display:block;
+width:100%;
+margin:0;
+}
+
+.preview-card{
+box-shadow:none;
+padding:0;
+}
+
+.resume{
+box-shadow:none;
+width:100%;
+}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>📄 Smart Resume Builder Pro</h1>
+<p>Create a professional resume in minutes</p>
+</header>
+
+<div class="topbar">
+
+<div class="progress-box">
+<div class="progress-text">
+Resume Completeness: <span id="percent">0%</span>
+</div>
+
+<div class="progress">
+<div class="progress-fill" id="progressFill"></div>
+</div>
+</div>
+
+<button class="toggle" onclick="toggleDarkMode()">
+🌙 Dark Mode
+</button>
+
+</div>
+
+<div class="container">
+
+<!-- FORM -->
+
+<div class="card form-card">
+
+<h2>✏️ Enter Your Details</h2>
+
+<label>Full Name</label>
+<input id="name" oninput="updateProgress()" placeholder="Your full name">
+
+<label>Professional Title</label>
+<input id="title" oninput="updateProgress()" placeholder="B.Tech CSE Student">
+
+<label>Email</label>
+<input id="email" oninput="updateProgress()" placeholder="example@gmail.com">
+
+<label>Phone</label>
+<input id="phone" oninput="updateProgress()" placeholder="+91 XXXXX XXXXX">
+
+<label>Location</label>
+<input id="location" oninput="updateProgress()" placeholder="Hyderabad, India">
+
+<label>LinkedIn</label>
+<input id="linkedin" oninput="updateProgress()" placeholder="LinkedIn profile">
+
+<label>GitHub</label>
+<input id="github" oninput="updateProgress()" placeholder="GitHub profile">
+
+<label>Career Objective</label>
+<textarea id="objective" oninput="updateProgress()"
+placeholder="Write your career objective..."></textarea>
+
+<label>Education</label>
+<textarea id="education" oninput="updateProgress()"
+placeholder="B.Tech CSE - Amity University Hyderabad
+2026 - Present"></textarea>
+
+<label>Skills</label>
+<textarea id="skills" oninput="updateProgress()"
+placeholder="Python, C, HTML, CSS, JavaScript"></textarea>
+
+<label>Projects</label>
+<textarea id="projects" oninput="updateProgress()"
+placeholder="HealthMirror - Wellness Tracking Website
+Smart Resume Builder"></textarea>
+
+<label>Certifications</label>
+<textarea id="certifications" oninput="updateProgress()"
+placeholder="Python Basics
+Web Development Certificate"></textarea>
+
+<button class="generate" onclick="generateResume()">
+✨ Generate Resume
+</button>
+
+<button class="download" onclick="window.print()">
+📥 Download / Save as PDF
+</button>
+
+</div>
+
+
+<!-- PREVIEW -->
+
+<div class="card preview-card">
+
+<h2>👀 Resume Preview</h2>
+
+<div class="templates">
+
+<button onclick="setTemplate('modern')" id="modernBtn" class="active">
+Modern
+</button>
+
+<button onclick="setTemplate('classic')" id="classicBtn">
+Classic
+</button>
+
+<button onclick="setTemplate('minimal')" id="minimalBtn">
+Minimal
+</button>
+
+</div>
+
+<div class="resume template-modern" id="resume">
+
+<div class="resume-header">
+<h1>Your Name</h1>
+<p>Your Professional Title</p>
+<p>Email | Phone | Location</p>
+</div>
+
+<div class="resume-section">
+<h3>PROFILE</h3>
+<p>Enter your details and click Generate Resume.</p>
+</div>
+
+<div class="resume-section">
+<h3>EDUCATION</h3>
+<p>Your education details will appear here.</p>
+</div>
+
+<div class="resume-section">
+<h3>SKILLS</h3>
+<p>Your skills will appear here.</p>
+</div>
+
+<div class="resume-section">
+<h3>PROJECTS</h3>
+<p>Your projects will appear here.</p>
+</div>
+
+<div class="resume-section">
+<h3>CERTIFICATIONS</h3>
+<p>Your certifications will appear here.</p>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<script>
+
+function value(id){
+return document.getElementById(id).value;
+}
+
+
+function updateProgress(){
+
+let fields=[
+"name",
+"title",
+"email",
+"phone",
+"location",
+"linkedin",
+"github",
+"objective",
+"education",
+"skills",
+"projects",
+"certifications"
+];
+
+let completed=0;
+
+fields.forEach(id=>{
+if(value(id).trim()!==""){
+completed++;
+}
+});
+
+let percent=Math.round((completed/fields.length)*100);
+
+document.getElementById("percent").innerText=percent+"%";
+document.getElementById("progressFill").style.width=percent+"%";
+}
+
+
+function generateResume(){
+
+let name=value("name")||"Your Name";
+let title=value("title")||"Your Professional Title";
+let email=value("email")||"Email";
+let phone=value("phone")||"Phone";
+let location=value("location")||"Location";
+
+let linkedin=value("linkedin");
+let github=value("github");
+
+let objective=value("objective")||
+"Motivated student looking to develop technical skills and gain practical experience.";
+
+let education=value("education")||
+"Add your education details.";
+
+let skills=value("skills")||
+"Add your skills.";
+
+let projects=value("projects")||
+"Add your projects.";
+
+let certifications=value("certifications")||
+"Add your certifications.";
+
+let links="";
+
+if(linkedin){
+links+="LinkedIn: "+linkedin+" ";
+}
+
+if(github){
+links+="GitHub: "+github;
+}
+
+
+document.getElementById("resume").innerHTML=`
+
+<div class="resume-header">
+
+<h1>${name}</h1>
+
+<p><strong>${title}</strong></p>
+
+<p>${email} | ${phone} | ${location}</p>
+
+<p>${links}</p>
+
+</div>
+
+
+<div class="resume-section">
+
+<h3>PROFILE</h3>
+
+<p>${objective}</p>
+
+</div>
+
+
+<div class="resume-section">
+
+<h3>EDUCATION</h3>
+
+<p>${education}</p>
+
+</div>
+
+
+<div class="resume-section">
+
+<h3>SKILLS</h3>
+
+<p>${skills}</p>
+
+</div>
+
+
+<div class="resume-section">
+
+<h3>PROJECTS</h3>
+
+<p>${projects}</p>
+
+</div>
+
+
+<div class="resume-section">
+
+<h3>CERTIFICATIONS</h3>
+
+<p>${certifications}</p>
+
+</div>
+
+`;
+
+}
+
+
+function setTemplate(template){
+
+let resume=document.getElementById("resume");
+
+resume.classList.remove(
+"template-modern",
+"template-minimal"
+);
+
+document.getElementById("modernBtn").classList.remove("active");
+document.getElementById("classicBtn").classList.remove("active");
+document.getElementById("minimalBtn").classList.remove("active");
+
+if(template==="modern"){
+
+resume.classList.add("template-modern");
+document.getElementById("modernBtn").classList.add("active");
+
+}
+
+else if(template==="minimal"){
+
+resume.classList.add("template-minimal");
+document.getElementById("minimalBtn").classList.add("active");
+
+}
+
+else{
+
+document.getElementById("classicBtn").classList.add("active");
+
+}
+
+}
+
+
+function toggleDarkMode(){
+
+document.body.classList.toggle("dark");
+
+}
+
+</script>
+
+</body>
+</html>
